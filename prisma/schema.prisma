@@ -5,11 +5,11 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -50,6 +50,8 @@ model Device {
   name          String
   brand         String
   model         String
+
+  qrCode        String? @unique
 
   serialNumber  String? @unique
 
