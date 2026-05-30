@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 
 @Controller('users')
 export class UsersController {
@@ -9,5 +10,11 @@ export class UsersController {
     @Get('count')
     async count() {
         return this.usersService.countUsers();
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('me')
+    me(@Req() req: any) {
+        return req.user;
     }
 }
