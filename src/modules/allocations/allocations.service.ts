@@ -1,24 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class AllocationsService {
-
     constructor(private prisma: PrismaService) { }
 
-    async allocateDevice(userId: string, deviceId: string) {
-        return this.prisma.$transaction(async (tx: any) => {
-            const device = await tx.device.findUnique({
-                where: { id: deviceId },
-            });
+    async allocate(userId: string, deviceId: string) {
+        const device = await this.prisma.device.findUnique({
+            where: { id: deviceId },
+        });
 
-            if (!device || device.status === 'ALLOCATED') {
-                throw new Error('Device not available');
-            }
+        if (!device) throw new BadRequestException('Device not found');
 
+        if (device.status === 'ALLOCATED') {
+            throw new BadRequestException('Device already allocated');
+        }
+
+        return this.prisma.$transaction(async (tx) => {
             await tx.device.update({
                 where: { id: deviceId },
-                data: { status: 'ALLOCATED' },
+                data: {
+                    status: 'ALLOCATED',
+                    currentUserId: userId,
+                    allocatedAt: new Date(),
+                },
             });
 
             return tx.allocation.create({
@@ -31,24 +36,48 @@ export class AllocationsService {
         });
     }
 
-    async returnDevice(allocationId: string) {
+    async returnDevice(userId: string, deviceId: string) {
+        const device = await this.prisma.device.findUnique({
+            where: { id: deviceId },
+        });
+
+        if (!device) {
+            throw new BadRequestException('Device not found');
+        }
+
+        if (device.currentUserId !== userId) {
+            throw new BadRequestException('This user does not hold this device');
+        }
+
+        const activeAllocation = await this.prisma.allocation.findFirst({
+            where: {
+                deviceId,
+                userId,
+                status: 'ACTIVE',
+            },
+        });
+
+        if (!activeAllocation) {
+            throw new BadRequestException('No active allocation found');
+        }
+
         return this.prisma.$transaction(async (tx) => {
-            const allocation = await tx.allocation.update({
-                where: { id: allocationId },
+            await tx.allocation.update({
+                where: { id: activeAllocation.id },
                 data: {
                     status: 'RETURNED',
                     returnedAt: new Date(),
                 },
             });
 
-            await tx.device.update({
-                where: { id: allocation.deviceId },
+            return tx.device.update({
+                where: { id: deviceId },
                 data: {
                     status: 'AVAILABLE',
+                    currentUserId: null,
+                    allocatedAt: null,
                 },
             });
-
-            return allocation;
         });
     }
 }
