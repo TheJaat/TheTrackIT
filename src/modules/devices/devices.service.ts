@@ -19,7 +19,18 @@ export class DevicesService {
 
     async findAll() {
         return this.prisma.device.findMany({
-            orderBy: { createdAt: 'desc' },
+            include: {
+                currentUser: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
         });
     }
 
