@@ -56,6 +56,8 @@ model Device {
   serialNumber  String? @unique
 
   status        DeviceStatus @default(AVAILABLE)
+  currentUserId String?   // who currenlty holds it
+  allocatedAt   DateTime?
 
   allocations   Allocation[]
 

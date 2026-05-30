@@ -1,15 +1,14 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { DevicesService } from './devices.service';
-import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { CreateDeviceDto } from './dto/create-device.dto';
 
-@UseGuards(JwtAuthGuard)
 @Controller('devices')
 export class DevicesController {
   constructor(private service: DevicesService) {}
 
   @Post()
-  create(@Body() body: any) {
-    return this.service.create(body);
+  create(@Body() dto: CreateDeviceDto) {
+    return this.service.create(dto);
   }
 
   @Get()

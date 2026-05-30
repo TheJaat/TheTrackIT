@@ -5,23 +5,20 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class DevicesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: {
-    deviceCode: string;
-    name: string;
-    brand: string;
-    model: string;
-    serialNumber?: string;
-  }) {
-    return this.prisma.device.create({ data });
+  async create(dto: any) {
+    const count = await this.prisma.device.count();
+
+    return this.prisma.device.create({
+      data: {
+        ...dto,
+        deviceCode: `DEV-${String(count + 1).padStart(4, '0')}`,
+      },
+    });
   }
 
   async findAll() {
     return this.prisma.device.findMany({
-      include: {
-        allocations: {
-          where: { status: 'ACTIVE' },
-        },
-      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
