@@ -11,3 +11,72 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum UserRole {
+  ADMIN
+  EMPLOYEE
+}
+
+enum DeviceStatus {
+  AVAILABLE
+  ALLOCATED
+}
+
+enum AllocationStatus {
+  ACTIVE
+  RETURNED
+}
+
+model User {
+  id            String @id @default(cuid())
+
+  name          String
+  email         String @unique
+  passwordHash  String
+
+  role          UserRole @default(EMPLOYEE)
+
+  allocations   Allocation[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Device {
+  id            String @id @default(cuid())
+
+  deviceCode    String @unique
+
+  name          String
+  brand         String
+  model         String
+
+  serialNumber  String? @unique
+
+  status        DeviceStatus @default(AVAILABLE)
+
+  allocations   Allocation[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Allocation {
+  id            String @id @default(cuid())
+
+  userId        String
+  deviceId      String
+
+  status        AllocationStatus @default(ACTIVE)
+
+  allocatedAt   DateTime @default(now())
+  returnedAt    DateTime?
+
+  user          User   @relation(fields: [userId], references: [id])
+  device        Device @relation(fields: [deviceId], references: [id])
+
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([deviceId])
+}
