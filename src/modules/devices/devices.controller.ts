@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Post, Param, UseGuards} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Param, UseGuards, Query} from '@nestjs/common';
 import { DevicesService } from './devices.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { Roles } from '../auth/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/roles.guard';
+import { DeviceQueryDto } from './dto/device-query.dto';
 
 @Controller('devices')
 export class DevicesController {
@@ -38,9 +39,15 @@ export class DevicesController {
         return this.service.findOne(id);
     }
 
+    // @Get()
+    // findAll() {
+    //     return this.service.findAll();
+    // }
     @Get()
-    findAll() {
-        return this.service.findAll();
+    findAll(
+        @Query() query: DeviceQueryDto,
+    ) {
+        return this.service.findAll(query);
     }
 
     // @Get(':deviceCode')

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as QRCode from 'qrcode';
+import { DeviceQueryDto } from './dto/device-query.dto';
 
 @Injectable()
 export class DevicesService {
@@ -21,21 +22,76 @@ export class DevicesService {
         return "TODO";
     }
 
-    async findAll() {
-        return this.prisma.device.findMany({
-            include: {
-                currentUser: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
+    // async findAll() {
+    //     return this.prisma.device.findMany({
+    //         include: {
+    //             currentUser: {
+    //                 select: {
+    //                     id: true,
+    //                     name: true,
+    //                     email: true,
+    //                 },
+    //             },
+    //         },
+    //         orderBy: {
+    //             createdAt: 'desc',
+    //         },
+    //     });
+    // }
+
+    async findAll(query: DeviceQueryDto) {
+        const page = Number(query.page ?? 1);
+        const limit = Number(query.limit ?? 20);
+
+        const where: any = {};
+
+        if (query.status) {
+            where.status = query.status;
+        }
+
+        if (query.brand) {
+            where.brand = query.brand;
+        }
+
+        if (query.search) {
+            where.OR = [
+                {
+                    name: {
+                        contains: query.search,
+                        mode: 'insensitive',
                     },
                 },
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+                {
+                    deviceCode: {
+                        contains: query.search,
+                        mode: 'insensitive',
+                    },
+                },
+            ];
+        }
+
+        const [items, total] =
+            await this.prisma.$transaction([
+                this.prisma.device.findMany({
+                    where,
+                    skip: (page - 1) * limit,
+                    take: limit,
+                    include: {
+                        currentUser: true,
+                    },
+                }),
+                this.prisma.device.count({
+                    where,
+                }),
+            ]);
+
+        return {
+            items,
+            total,
+            page,
+            limit,
+            pages: Math.ceil(total / limit),
+        };
     }
 
     async findOne(id: string) {
