@@ -7,6 +7,7 @@ import { UsersModule } from './modules/users/users.module';
 import { DevicesModule } from './modules/devices/devices.module';
 import { AllocationsModule } from './modules/allocations/allocations.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 
 @Module({
@@ -17,7 +18,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     UsersModule,
     DevicesModule,
-    AllocationsModule,PrismaModule
+    AllocationsModule,PrismaModule, DashboardModule
   ],
   controllers: [AppController],
   providers: [AppService],
