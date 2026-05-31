@@ -9,6 +9,11 @@ export class DashboardController {
 
   @Get('stats')
   stats() {
-    return this.service.getStats();
+    return this.service.stats();
   }
+
+    @Get('recent-activity')
+    recentActivity() {
+        return this.service.recentActivity();
+    }
 }
