@@ -20,4 +20,14 @@ export class UsersService {
   async countUsers() {
     return this.prisma.user.count();
   }
+
+    async findAll() {
+        return this.prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+            },
+        });
+    }
 }

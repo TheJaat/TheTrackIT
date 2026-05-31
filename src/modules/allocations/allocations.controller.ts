@@ -9,13 +9,22 @@ import { CurrentUser } from '../auth/current-user.decorator';
 export class AllocationsController {
     constructor(private service: AllocationsService) { }
 
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
+    // @Post('allocate')
+    // allocate(
+    //     @Body('deviceId') deviceId: string,
+    //     @CurrentUser() user: any,
+    // ) {
+    //     return this.service.allocate(user.userId, deviceId);
+    // }
     @Post('allocate')
     allocate(
-        @Body('deviceId') deviceId: string,
-        @CurrentUser() user: any,
+        @Body() dto: AllocateDeviceDto,
     ) {
-        return this.service.allocate(user.userId, deviceId);
+        return this.service.allocate(
+            dto.userId,
+            dto.deviceId,
+        );
     }
 
     @Post('return')
