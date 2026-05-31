@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Param } from '@nestjs/common';
 import { AllocationsService } from './allocations.service';
 import { AllocateDeviceDto } from './dto/allocation.dto';
 import { ReturnDeviceDto } from './dto/return.dto';
@@ -21,5 +21,12 @@ export class AllocationsController {
     @Post('return')
     returnDevice(@Body() dto: ReturnDeviceDto) {
         return this.service.returnDevice(dto.userId, dto.deviceId);
+    }
+
+    @Get('device/:deviceId/history')
+    history(
+        @Param('deviceId') deviceId: string,
+    ) {
+        return this.service.history(deviceId);
     }
 }

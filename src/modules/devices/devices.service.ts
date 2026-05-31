@@ -17,6 +17,10 @@ export class DevicesService {
         });
     }
 
+    async remove(id: string){
+        return "TODO";
+    }
+
     async findAll() {
         return this.prisma.device.findMany({
             include: {
@@ -36,7 +40,33 @@ export class DevicesService {
 
     async findOne(id: string) {
         return this.prisma.device.findUnique({
-            where: { id },
+            where: {
+                id,
+            },
+            include: {
+                currentUser: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    },
+                },
+
+                allocations: {
+                    include: {
+                        user: {
+                            select: {
+                                name: true,
+                                email: true,
+                            },
+                        },
+                    },
+
+                    orderBy: {
+                        allocatedAt: 'desc',
+                    },
+                },
+            },
         });
     }
 

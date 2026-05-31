@@ -80,4 +80,24 @@ export class AllocationsService {
             });
         });
     }
+
+    async history(deviceId: string) {
+        return this.prisma.allocation.findMany({
+            where: {
+                deviceId,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    },
+                },
+            },
+            orderBy: {
+                allocatedAt: 'desc',
+            },
+        });
+    }
 }
