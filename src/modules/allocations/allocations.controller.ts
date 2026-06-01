@@ -9,27 +9,36 @@ import { CurrentUser } from '../auth/current-user.decorator';
 export class AllocationsController {
     constructor(private service: AllocationsService) { }
 
-    // @UseGuards(JwtAuthGuard)
-    // @Post('allocate')
-    // allocate(
-    //     @Body('deviceId') deviceId: string,
-    //     @CurrentUser() user: any,
-    // ) {
-    //     return this.service.allocate(user.userId, deviceId);
-    // }
+    @UseGuards(JwtAuthGuard)
     @Post('allocate')
     allocate(
-        @Body() dto: AllocateDeviceDto,
+        @Body('deviceId') deviceId: string,
+        @CurrentUser() user: any,
     ) {
-        return this.service.allocate(
-            dto.userId,
-            dto.deviceId,
-        );
+        return this.service.allocate(user.userId, deviceId);
     }
+    // @Post('allocate')
+    // allocate(
+    //     @Body() dto: AllocateDeviceDto,
+    // ) {
+    //     return this.service.allocate(
+    //         dto.userId,
+    //         dto.deviceId,
+    //     );
+    // }
 
+    // @Post('return')
+    // returnDevice(@Body() dto: ReturnDeviceDto) {
+    //     return this.service.returnDevice(dto.userId, dto.deviceId);
+    // }
+    @UseGuards(JwtAuthGuard)
     @Post('return')
-    returnDevice(@Body() dto: ReturnDeviceDto) {
-        return this.service.returnDevice(dto.userId, dto.deviceId);
+    returnDevice(
+        @Body('deviceId') deviceId: string,
+        @CurrentUser() user: any,
+    ) {
+        console.log(user);
+        return this.service.returnDevice(user.userId, deviceId);
     }
 
     @Get('device/:deviceId/history')

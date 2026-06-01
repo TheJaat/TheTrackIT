@@ -6,29 +6,29 @@ import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private prisma: PrismaService,
-    private jwt: JwtService,
-  ) {}
+    constructor(
+        private prisma: PrismaService,
+        private jwt: JwtService,
+    ) { }
 
-  async login(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    async login(email: string, password: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { email },
+        });
 
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+        if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const isValid = await bcrypt.compare(password, user.passwordHash);
+        const isValid = await bcrypt.compare(password, user.passwordHash);
 
-    if (!isValid) throw new UnauthorizedException('Invalid credentials');
+        if (!isValid) throw new UnauthorizedException('Invalid credentials');
 
-    return {
-      access_token: this.jwt.sign({
-        sub: user.id,
-        role: user.role,
-      }),
-    };
-  }
+        return {
+            access_token: this.jwt.sign({
+                sub: user.id,
+                role: user.role,
+            }),
+        };
+    }
 
     async register(dto: RegisterDto) {
         const existing =
@@ -55,6 +55,20 @@ export class AuthService {
                 name: dto.name,
                 email: dto.email,
                 passwordHash,
+            },
+        });
+    }
+
+    async getMe(userId: string) {
+        return this.prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
             },
         });
     }
